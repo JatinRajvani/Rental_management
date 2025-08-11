@@ -138,28 +138,28 @@ const getAllProducts = async (req, res) => {
 };
 
 const addincart = async (req, res) => {
-  const { userId, productId, quantity = 1, name, price, category, images } = req.body;
-
-  if (!userId || !productId) {
+  const { email, productId, quantity, name, price, category, images } = req.body;
+  console.log('Request body:', req.body);
+  
+  if (!email || !productId || !quantity) {
     return res.status(400).json({ message: 'Missing required fields' });
   }
 
   try {
     const db = getDB();
-    const userObjectId = new ObjectId(userId);
     const productObjectId = new ObjectId(productId);
 
     // Find existing cart for the user
-    const cart = await db.collection('carts').findOne({ userId: userObjectId });
+    const cart = await db.collection('carts').findOne({ email: email });
 
     if (!cart) {
       // Create new cart for user with one product item
       const newCart = {
-        userId: userObjectId,
+        email: email,
         items: [
           {
             productId: productObjectId,
-            quantity,
+            quantity: Number(quantity),
             name,
             price,
             category,
@@ -184,13 +184,13 @@ const addincart = async (req, res) => {
 
       if (existingItemIndex > -1) {
         // Product exists, update quantity
-        cart.items[existingItemIndex].quantity += quantity;
+        cart.items[existingItemIndex].quantity += Number(quantity);
         cart.items[existingItemIndex].addedAt = new Date();
       } else {
         // Add new product to items
         cart.items.push({
           productId: productObjectId,
-          quantity,
+          quantity: Number(quantity),
           name,
           price,
           category,
@@ -201,7 +201,7 @@ const addincart = async (req, res) => {
 
       // Update cart document
       await db.collection('carts').updateOne(
-        { userId: userObjectId },
+        { email: email },
         { $set: { items: cart.items, updatedAt: new Date() } }
       );
 
@@ -213,27 +213,41 @@ const addincart = async (req, res) => {
   }
 };
 
-// ✅ Get single product by ID
-const getProductById = async (req, res) => {
+const getcartproductbyemail = async (req, res) => {
+  const { email } = req.params;
+
+  if (!email) {
+    return res.status(400).json({ message: 'Missing email parameter' });
+  }
+
   try {
     const db = getDB();
-    const { id } = req.params;
+    const cart = await db.collection('carts').findOne({ email: email });
 
-    if (!ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "Invalid product ID" });
+    if (!cart) {
+      return res.status(404).json({ message: 'Cart not found' });
     }
 
-    const product = await db.collection("all_products").findOne({ _id: new ObjectId(id) });
-
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
-    }
-
-    res.status(200).json(product);
+    res.status(200).json(cart.items);
   } catch (error) {
-    console.error("Error fetching product:", error);
-    res.status(500).json({ message: "Internal Server Error" });
+    console.error('Error fetching cart products:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 };
 
-module.exports = { addproduct, producttransaction, getAllProducts, addincart, getProductById };
+// Example frontend usage
+const deleteFromCart = async (productId) => {
+  try {
+    await axios.delete(`http://localhost:5500/api/cart/${user.email}`, {
+      data: { productId }
+    });
+    // Refresh cart after deletion
+    fetchCartItems();
+  } catch (error) {
+    console.error('Failed to delete item:', error);
+  }
+};
+
+
+
+module.exports = { addproduct, producttransaction, getAllProducts, addincart, getcartproductbyemail,deleteFromCart };

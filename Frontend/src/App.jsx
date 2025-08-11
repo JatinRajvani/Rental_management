@@ -8,8 +8,10 @@ import Navbar from "./Components/Navbar";
 import CuHome from "./Pages/Customer/CuHome";
 import Footer from "./Components/Footer";
 import Products from "./Pages/Customer/Product";
+
 import SepProductpage from './Pages/Customer/SepProductpage'
 
+import Cart from './Pages/cart/cart'
 import Contact from './Pages/Customer/Contact'
 import UserProfileSection from "./Pages/Customer/UserProfileSection";
 import { ToastContainer } from "react-toastify";
@@ -31,7 +33,7 @@ function App() {
           <Route path="/products" element={<Products />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/profile/:email" element={<UserProfileSection />} />
-          <Route path="/products/:id" element={<SepProductpage />} />
+          <Route path="/cart" element={<Cart />} />
         </Routes>
 
         {/* Footer is always visible */}

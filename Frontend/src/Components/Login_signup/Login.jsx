@@ -115,4 +115,3 @@ const LoginPopup = ({ isOpen, onClose, onSwitchToSignUp }) => {
 
 export default LoginPopup;
 
-
