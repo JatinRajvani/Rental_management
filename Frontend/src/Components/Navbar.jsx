@@ -7,6 +7,7 @@ import LoginPopup from "../Components/Login_signup/Login";
 import SignUpPopup from "../Components/Login_signup/Signup";
 
 const Navbar = () => {
+      const navigate = useNavigate();
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
 

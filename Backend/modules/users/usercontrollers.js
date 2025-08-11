@@ -156,6 +156,3 @@ const changePassword = async (req, res) => {
 };
 
 module.exports = { addUser, userprofile, updateUserProfile, changePassword };
-
-
-module.exports = { addUser, userprofile , updateUserProfile , changePassword};

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 import axios from "axios";
-import HashLoader from "react-spinners/HashLoader"; // stylish loader
+import HashLoader from "react-spinners/HashLoader";
 
 // Categories
 const categories = [
@@ -9,6 +11,7 @@ const categories = [
 ];
 
 const Products = () => {
+  const { user } = useSelector((state) => state.auth);
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -16,7 +19,7 @@ const Products = () => {
   const [loading, setLoading] = useState(true);
   const [suggestions, setSuggestions] = useState([]);
 
-  // Handle search & suggestions
+  // Search with suggestions
   const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearchTerm(value);
@@ -53,7 +56,7 @@ const Products = () => {
     fetchProducts();
   }, []);
 
-  // Apply filters
+  // Filter products
   const filteredProducts = products.filter((product) => {
     const matchesSearch =
       !searchTerm || product.name?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -68,7 +71,30 @@ const Products = () => {
     return matchesSearch && matchesCategory && matchesPrice;
   });
 
-  // Loader display
+  // Add to Cart
+  const handleAddToCart = async (product) => {
+    if (!user) {
+      alert("Please login to add products to your cart.");
+      return;
+    }
+
+    try {
+      await axios.post("http://localhost:5500/api/cart/add", {
+        userId: user._id,
+        productId: product._id,
+        quantity: 1,
+        name: product.name,
+        price: product.price || product.pricepermonth,
+        category: product.category,
+        images: product.images,
+      });
+      alert("Product added to cart!");
+    } catch (err) {
+      console.error("Error adding to cart:", err);
+    }
+  };
+
+  // Loader
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
@@ -130,7 +156,7 @@ const Products = () => {
           <p className="text-gray-500">Find the perfect rental for you</p>
         </div>
 
-        {/* Search & Suggestions */}
+        {/* Search */}
         <div className="mb-8 flex flex-col items-center relative">
           <input
             type="text"
@@ -162,17 +188,19 @@ const Products = () => {
                 key={product._id}
                 className="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden flex flex-col"
               >
-                {product.images && product.images.length > 0 ? (
-                  <img
-                    src={product.images[0]}
-                    alt={product.name}
-                    className="h-48 w-full object-cover"
-                  />
-                ) : (
-                  <div className="h-48 bg-gray-200 flex items-center justify-center">
-                    <span className="text-gray-500">No Image</span>
-                  </div>
-                )}
+                <Link to={`/products/${product._id}`}>
+                  {product.images && product.images.length > 0 ? (
+                    <img
+                      src={product.images[0]}
+                      alt={product.name}
+                      className="h-48 w-full object-cover"
+                    />
+                  ) : (
+                    <div className="h-48 bg-gray-200 flex items-center justify-center">
+                      <span className="text-gray-500">No Image</span>
+                    </div>
+                  )}
+                </Link>
 
                 <div className="p-4 flex-1 flex flex-col">
                   <div className="flex justify-between items-start mb-2">
@@ -193,16 +221,20 @@ const Products = () => {
                     <span className="text-sm text-gray-600">Per Month</span>
                   </div>
 
-                  <button className="mt-4 bg-gray-900 text-white py-2 rounded-lg hover:bg-gray-800 transition">
+                  <button
+                    className="mt-4 bg-gray-900 text-white py-2 rounded-lg hover:bg-gray-800 transition"
+                    onClick={() => handleAddToCart(product)}
+                  >
                     Add to Cart
                   </button>
                 </div>
               </div>
             ))
           ) : (
-            <p className="col-span-full text-center text-gray-500 py-8">
-              No products match your filters.
-            </p>
+            <div className="col-span-full flex flex-col items-center justify-center py-20">
+              <img src="/no-results.svg" alt="No results" className="w-40 mb-4" />
+              <p className="text-gray-500">No products match your filters.</p>
+            </div>
           )}
         </div>
       </main>
