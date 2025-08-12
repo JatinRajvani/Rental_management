@@ -6,6 +6,9 @@ From browsing products to secure online payments and real-time email notificatio
 Whether it’s **vehicles, electronics, tools, or any other rentable items**, this platform lets users rent with just a few clicks while giving admins the power to manage everything in one dashboard.
 
 ---
+**Links:**
+- Figma Design – [Figma Design](https://www.figma.com/design/DTPG3EnZsGCmoRPZSl4mS2/Untitled?node-id=1-13&t=oT22fwxmlNmFj36b-1)
+- Video Link – [Youtube video](https://youtu.be/7GKUQdv_xFU)
 
 ## 📌 Table of Contents
 - Features  
@@ -68,9 +71,10 @@ Whether it’s **vehicles, electronics, tools, or any other rentable items**, th
 - 🔑 JWT Authentication – Secure user sessions
 - 🔒 bcrypt.js – Password encryption
 - ⚙️ dotenv – Environment variable management
-
+  
 ---
 
+  
 ## 📦 Installation
 
 ### 1️⃣ Clone Repository
